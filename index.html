@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=360, initial-scale=1">
-	<title></title>
+	<title>Shop Online</title>
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lobster">
 	<link rel="stylesheet" href="main.css">
 </head>
@@ -14,12 +14,7 @@
 
 		<section class="section">
 			<h2 class="text-center">Products</h2>
-			<div class="products">
-				<!--
-					https://www.iconfinder.com/iconsets/beverage
-					Creative Commons (Attribution 3.0 Unported)
-					https://creativemarket.com/eucalyp
-				-->
+			<div class="products">				
 				<div class="product">
 					<img class="product__image" src="img/products/beer.svg" alt="Beer">
 					<h2 class="product__name">Beer</h2>
@@ -61,11 +56,19 @@
 
 		<section class="section">
 			<h2 class="text-center">Cart</h2>
-			<div class="cart"></div>
+			<div class="cart"></div>			
 		</section>
 
 	</main>
-
+	<div id="popup-container" class="popup-container">
+	  <div class="popup">
+		<img src="img/check.png" alt="Checkmark" class="checkmark-icon">
+		<p id="popup-message"></p>
+		<button id="close-popup" class="btn btn--primary">Close</button>
+	  </div>
+	</div>
+	
+	<script src="https://www.paypal.com/sdk/js?client-id=AQd3856Vdbmr9HbPLP8Ux9qpdwYNUsXsm5VeHzIqsp0mTVDP4_euGJB3EvmJcWEGCfWkDnKvsSNvjm-v"></script>
 	<script src="main.js"></script>
 </body>
 

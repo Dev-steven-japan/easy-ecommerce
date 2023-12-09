@@ -1,10 +1,15 @@
 'use strict';
 
+/*
+Paypal Documentation used:
+https://developer.paypal.com/sdk/js/reference/
+*/
+
 let cart = (JSON.parse(localStorage.getItem('cart')) || []);
 const cartDOM = document.querySelector('.cart');
 const addToCartButtonsDOM = document.querySelectorAll('[data-action="ADD_TO_CART"]');
 
-if (cart.length > 0) {
+if (cart.length > 0) {	
   cart.forEach(cartItem => {
     const product = cartItem;
     insertItemToDOM(product);
@@ -12,13 +17,12 @@ if (cart.length > 0) {
 
     addToCartButtonsDOM.forEach(addToCartButtonDOM => {
       const productDOM = addToCartButtonDOM.parentNode;
-
       if (productDOM.querySelector('.product__name').innerText === product.name) {
         handleActionButtons(addToCartButtonDOM, product);
       }
     });
 
-  });
+  });  
 }
 
 addToCartButtonsDOM.forEach(addToCartButtonDOM => {
@@ -34,7 +38,7 @@ addToCartButtonsDOM.forEach(addToCartButtonDOM => {
     const isInCart = (cart.filter(cartItem => (cartItem.name === product.name)).length > 0);
 
     if (!isInCart) {
-      insertItemToDOM(product);
+      insertItemToDOM(product);	 
       cart.push(product);
       saveCart();
       handleActionButtons(addToCartButtonDOM, product);
@@ -54,7 +58,6 @@ function insertItemToDOM(product) {
       <button class="btn btn--danger btn--small" data-action="REMOVE_ITEM">&times;</button>
     </div>
   `);
-
   addCartFooter();
 }
 
@@ -116,13 +119,16 @@ function addCartFooter() {
   if (document.querySelector('.cart-footer') === null) {
     cartDOM.insertAdjacentHTML('afterend', `
       <div class="cart-footer">
-        <button class="btn btn--danger" data-action="CLEAR_CART">Clear Cart</button>
-        <button class="btn btn--primary" data-action="CHECKOUT">Pay</button>
-      </div>
+	    <div class="top">
+			<button class="btn btn--danger" data-action="CLEAR_CART">Clear Cart</button>
+			<span id="total-to-pay" data-action="TOTAL">Total</button>
+		</div>
+        <div class="bottom" id="paypal-button-container"></div>		
+      </div>	  
     `);
 
     document.querySelector('[data-action="CLEAR_CART"]').addEventListener('click', () => clearCart());
-    document.querySelector('[data-action="CHECKOUT"]').addEventListener('click', () => checkout());
+    checkout();
   }
 }
 
@@ -142,37 +148,58 @@ function clearCart() {
   });
 }
 
-function checkout() {
-  let paypalFormHTML = `
-    <form id="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post">
-      <input type="hidden" name="cmd" value="_cart">
-      <input type="hidden" name="upload" value="1">
-      <input type="hidden" name="business" value="adrian@webdev.tube">
-  `;
+function checkout() {	
+  paypal.Buttons({
+    createOrder: function(data, actions) {
+	  // Create a list of items in the cart
+	  const itemDescriptions = cart.map(cartItem => `${cartItem.quantity}x ${cartItem.name}`).join(', ');
+	  
+      return actions.order.create({
+        purchase_units: [{
+          description: `Items: ${itemDescriptions}`,
+          amount: {
+            currency_code: "USD",
+            value: calculateCartTotal()
+          }
+        }]
+      });
+    },
+    onApprove: function(data, actions) {
+	  return actions.order.capture().then(function(details) {        
+		const transactionId = details.id;
+		showPopup(transactionId);
+		clearCart();
+	  });
+	}
+  }).render('#paypal-button-container');
+}
 
-  cart.forEach((cartItem, index) => {
-    ++index;
-    paypalFormHTML += `
-      <input type="hidden" name="item_name_${index}" value="${cartItem.name}">
-      <input type="hidden" name="amount_${index}" value="${cartItem.price}">
-      <input type="hidden" name="quantity_${index}" value="${cartItem.quantity}">
-    `;
+function calculateCartTotal() {
+  let cartTotal = 0;
+  cart.forEach(cartItem => {
+    const price = parseFloat(cartItem.price.replace('$', ''));
+    cartTotal += price * cartItem.quantity;
   });
-
-  paypalFormHTML += `
-      <input type="submit" value="PayPal">
-    </form>
-    <div class="overlay"></div>
-  `;
-
-  document.querySelector('body').insertAdjacentHTML('beforeend', paypalFormHTML);
-  document.getElementById('paypal-form').submit();
+  return cartTotal.toFixed(2); // Ensure it's formatted as a proper currency value
 }
 
 function countCartTotal() {
   let cartTotal = 0;
   cart.forEach(cartItem => cartTotal += cartItem.quantity * cartItem.price);
-  document.querySelector('[data-action="CHECKOUT"]').innerText = `Pay $${cartTotal}`;
+  document.querySelector('[data-action="TOTAL"]').innerText = `Total: $${cartTotal}`;
+}
+
+function showPopup(transactionId) {
+  const popupContainer = document.getElementById('popup-container');
+  const popupMessage = document.getElementById('popup-message');
+  const closePopupButton = document.getElementById('close-popup');
+
+  popupMessage.innerHTML = `Your payment was successful.<br><br><b>Transaction ID:</b> ${transactionId}<br><br>Thank you for your purchase.`;
+  popupContainer.style.display = 'flex';
+
+  closePopupButton.addEventListener('click', () => {	
+    popupContainer.style.display = 'none';
+  });
 }
 
 function saveCart() {

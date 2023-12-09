@@ -11,7 +11,7 @@
   --base-font-family: Arial, Helvetica, sans-serif;
   --fancy-font-family: 'Lobster', serif;
   --base-padding: 10px;
-  font-size: 12px;
+  font-size: 20px;
 }
 
 @media screen and (min-width: 600px) {
@@ -41,24 +41,37 @@ body {
   max-width: var(--max-width);
   display: grid;
   grid-gap: var(--base-padding);
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 1fr;
   margin: 0 auto;
   padding: 0 var(--base-padding);
 }
 
+.section {
+  display: flex;
+  flex-direction: column;  
+}
+
+.section > h2{
+	color: var(--color-danger);
+    border-bottom:1px solid #CCC; 
+}
+
 @media screen and (min-width: 600px) {
-  .main-container { grid-template-columns: 5fr 6fr }
+	.main-container { grid-template-columns: 5fr 6fr }
+	.section > h2{
+		color: var(--color-black);
+		border-bottom:none; 
+	}
 }
 
 @media screen and (min-width: 1000px) {
-  .main-container { grid-template-columns: 5fr 3fr }
+	.main-container { grid-template-columns: 5fr 3fr }
+	.section > h2{
+		color: var(--color-black);
+		border-bottom:none; 
+	}
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  max-height: 100vh;
-}
 
 /* ----------------- Typography ----------------- */
 
@@ -125,19 +138,20 @@ button {
 
 .products {
   display: grid;
-  grid-gap: var(--base-padding);
-  overflow: auto;
+  grid-gap: var(--base-padding);  
 }
 
 @media screen and (min-width: 600px) {
   .products {
     grid-template-columns: repeat(2, 1fr);
+	overflow: auto;
   }
 }
 
 @media screen and (min-width: 1000px) {
   .products {
     grid-template-columns: repeat(3, 1fr);
+	overflow: auto;
   }
 }
 
@@ -191,8 +205,8 @@ button {
 .cart {
   display: grid;
   grid-gap: var(--base-padding);
-  overflow-x: hidden;
-  overflow-y: auto;
+  /*steven overflow-x: hidden;
+  overflow-y: auto;*/
 }
 
 .cart h3 {
@@ -251,7 +265,24 @@ button {
 
 .cart-footer {
   display: flex;
+  flex-direction:column;
   justify-content: space-between;
+  margin-top: var(--base-padding);
+}
+
+.cart-footer .top{
+  display: flex;  
+  justify-content: space-between;
+  align-items:center;
+  margin-top: var(--base-padding);
+}
+
+.cart-footer .top #total-to-pay{
+  font-size:23px;
+  font-weight: bold;  
+}
+
+.cart-footer .bottom{  
   margin-top: var(--base-padding);
 }
 
@@ -263,4 +294,54 @@ button {
   left: 0;
   background: rgba(255, 255, 255, .7);
   cursor: wait;
+}
+
+/* ----------------- Pop Up ----------------- */
+
+/* Popup styles */
+.popup-container {
+  display: none;
+  position: fixed;
+  font-size:20px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;  
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.popup-container .popup {
+  background-color: white;
+  border-radius: 5px;
+  padding: 50px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.popup-container .btn {
+  cursor: pointer;
+}
+
+/* Style for the "Close" button */
+.popup-container .btn--primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.popup-container. btn--primary:hover {
+  background-color: #0056b3;
+}
+
+.checkmark-icon {
+  display: block;
+  margin: 0 auto 20px;
+  width: 130px; /* Adjust the size as needed */
+  height: 130px; /* Adjust the size as needed */
+  fill: #28a745; /* Green color for the checkmark */
 }
